@@ -38,7 +38,6 @@ Given /^I am on the RottenPotatoes home page$/ do
   click_button 'Update Movie Info'
  end
 
-
 # New step definitions to be completed for HW5. 
 # Note that you may need to add additional step definitions beyond these
 
@@ -46,29 +45,60 @@ Given /^I am on the RottenPotatoes home page$/ do
 # Add a declarative step here for populating the DB with movies.
 
 Given /the following movies have been added to RottenPotatoes:/ do |movies_table|
-  pending  # Remove this statement when you finish implementing the test step
   movies_table.hashes.each do |movie|
-    # Each returned movie will be a hash representing one row of the movies_table
-    # The keys will be the table headers and the values will be the row contents.
-    # Entries can be directly to the database with ActiveRecord methods
-    # Add the necessary Active Record call(s) to populate the database.
+    Movie.create(movie)
   end
 end
 
 When /^I have opted to see movies rated: "(.*?)"$/ do |arg1|
-  # HINT: use String#split to split up the rating_list, then
-  # iterate over the ratings and check/uncheck the ratings
-  # using the appropriate Capybara command(s)
-  pending  #remove this statement after implementing the test step
+  allratings = ['G', 'PG', 'PG-13', 'NC-17', 'R']
+  allratings.each do |x|
+    uncheck "ratings_#{x}"
+  end
+  rating_list = arg1.split(", ")
+  rating_list.each do |ratingInd|
+    check "ratings_#{ratingInd}"
+  end
+  click_button "ratings_submit"
 end
 
 Then /^I should see only movies rated: "(.*?)"$/ do |arg1|
-  pending  #remove this statement after implementing the test step
+    testCase = false
+    all("table#movies tr/td[2]").each do |ratingValue|
+        if (ratingValue.text.in?(arg1.split(",")))
+            testCase = true
+        end
+    end
+    expect(testCase).to be_truthy
 end
 
 Then /^I should see all of the movies$/ do
-  pending  #remove this statement after implementing the test step
+    numberOfMovies = all("table#movies tr").count-14
+    expect(Movie.all.count == numberOfMovies).to be_truthy
 end
 
+When /^I have opted to see the movies in alphabetical order$/ do
+    click_on "title_header"
+end
 
+Then /^I should see the title "(.*?)" before "(.*?)"$/ do |titleOne,titleTwo|
+    movieList = []
+    all("table#movies tbody/tr/td[1]").each do |movieTitle|
+        #push all movies onto movieList
+        movieList << movieTitle.text
+    end
+    expect(movieList.index(titleOne) < movieList.index(titleTwo)).to be_truthy
+end
 
+When /^I have opted to see the movies in increasing order of release date$/ do
+    click_on "release_date_header"
+end
+
+Then /^I should see the date "(.*?)" before "(.*?)"$/ do |dateOne,dateTwo|
+    movieList = []
+    all("table#movies tbody/tr/td[3]").each do |movieDate|
+        #push all movies onto movieList
+        movieList << movieDate.text
+    end
+    expect(movieList.index(dateOne) < movieList.index(dateTwo)).to be_truthy
+end

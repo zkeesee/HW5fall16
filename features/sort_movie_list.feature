@@ -22,8 +22,9 @@ Background: movies have been added to database
   And I am on the RottenPotatoes home page
 
 Scenario: sort movies alphabetically
-  # your scenario here
+  When I have opted to see the movies in alphabetical order
+  Then I should see the title "Chocolat" before "When Harry Met Sally" 
 
 Scenario: sort movies in increasing order of release date
-  # your scenario here
-
+  When I have opted to see the movies in increasing order of release date
+  Then I should see the date "2001-01-05 00:00:00 UTC" before "2011-08-10 00:00:00 UTC"
